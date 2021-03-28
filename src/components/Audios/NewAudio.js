@@ -1,14 +1,12 @@
-import { Box, Button, Grid, IconButton, Typography } from '@material-ui/core';
+import { Button, Grid, IconButton, Typography } from '@material-ui/core';
 import { useState } from 'react';
-import { invokeSaveAsDialog } from 'recordrtc';
 import * as AudioRecord from '../Utils/AudioRecorder';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import PauseIcon from '@material-ui/icons/Pause';
 import StopIcon from '@material-ui/icons/Stop';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator';
-import { useApi } from '../Utils/fetchApi';
 import { dateFormatter } from '../Utils/dateUtils';
 import { DateTime } from 'luxon';
 import axios from 'axios';
@@ -96,7 +94,12 @@ export function NewAudio() {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Button color="primary" variant="contained" type="submit">
+          <Button
+            color="primary"
+            variant="contained"
+            type="submit"
+            disabled={!AudioRecord.canSave()}
+          >
             <SaveAltIcon /> Save
           </Button>
           <Button onClick={backHome}>Volver</Button>
