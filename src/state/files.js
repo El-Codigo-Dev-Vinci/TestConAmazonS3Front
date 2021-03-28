@@ -1,14 +1,34 @@
-import { selector } from 'recoil';
+import { selector, selectorFamily } from 'recoil';
+import axios from 'axios';
+import { counterUpdatesState } from '../state/updates';
+import queryString from 'query-string';
 
-const apiUrl = process.env.REACT_APP_API_URL;
-
-async function getJsonFromApi(path) {
-  console.log(`${apiUrl}/${path}`);
-  const response = await fetch(`${apiUrl}/${path}`);
-  return response.json();
-}
-
-export const everyFile = selector({
-  key: 'everyFile',
-  get: async () => await getJsonFromApi('files'),
+export const allFiles = selector({
+  key: 'allFiles',
+  get: async ({ get }) => {
+    const { data } = get(apiIndex({ path: 'files' }));
+    return data;
+  },
 });
+
+export const apiIndex = selectorFamily({
+  key: 'apiIndex',
+  get: ({ path, filtro }) => ({ get }) => {
+    get(counterUpdatesState(path));
+    return getData(buildPath(path, filtro));
+  },
+});
+
+export const buildPath = (path, filtro = {}) => {
+  const query = queryString.stringify(filtro, { skipNull: true });
+  return query ? `${path}?${query}` : `${path}`;
+};
+
+export const getData = async (path) => {
+  return await makeApi().get(path);
+};
+
+const makeApi = () =>
+  axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });

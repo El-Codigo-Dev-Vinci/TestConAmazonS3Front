@@ -19,7 +19,6 @@ export function useApi(path) {
 
   return {
     create: async (entity) => {
-      console.log(entity);
       const { data } = await api.post(path, entity);
       return data;
     },
