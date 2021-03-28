@@ -21,19 +21,30 @@ export async function startRecording(setRecordingState) {
   }
 }
 
-export function stopRecording(callback) {
+export function stopRecording() {
   recorder.stopRecording(() => {
-    const blob = recorder.getBlob();
-    recorder.destroy();
     microphone.stop();
     microphone = null;
-    recorder = null;
-    if (callback) callback(blob);
   });
 }
 
 export function pauseRecording() {
   recorder.pauseRecording();
+}
+
+export function getAudio(fileName) {
+  var blob = recorder.getBlob();
+
+  // we need to upload "File" --- not "Blob"
+  var fileObject = new File([blob], fileName, {
+    type: 'audio/webm',
+  });
+  return fileObject;
+}
+
+export function cleanRecorder() {
+  recorder.destroy();
+  recorder = null;
 }
 
 export function canRecord() {
