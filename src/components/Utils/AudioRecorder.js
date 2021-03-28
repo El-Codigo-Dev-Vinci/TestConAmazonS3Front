@@ -60,3 +60,7 @@ export function canPause() {
 export function canStop() {
   return recorder && ['paused', 'recording'].includes(recorder.getState());
 }
+
+export function canSave() {
+  return recorder && ['stopped'].includes(recorder.getState());
+}

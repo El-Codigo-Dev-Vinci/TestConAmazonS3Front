@@ -3,7 +3,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
-import { useApi } from '../Utils/fetchApi';
 import { useNotifyUpdate } from '../../state/updates';
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator';
 import { useState } from 'react';
