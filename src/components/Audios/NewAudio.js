@@ -5,18 +5,21 @@ import * as AudioRecord from '../Utils/AudioRecorder';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import PauseIcon from '@material-ui/icons/Pause';
 import StopIcon from '@material-ui/icons/Stop';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator';
 import { useApi } from '../Utils/fetchApi';
 import { dateFormatter } from '../Utils/dateUtils';
 import { DateTime } from 'luxon';
 import axios from 'axios';
+import { ERRORS } from '../Utils/Text';
+import { useNotifyUpdate } from '../../state/updates';
 
 export function NewAudio() {
   const [recordingState, setRecordingState] = useState('');
   const [fileName, setFileName] = useState('');
-  const { create } = useApi('files');
+  const notifyUpdate = useNotifyUpdate('files');
+  const history = useHistory();
 
   const startRecording = async () => {
     AudioRecord.startRecording(setRecordingState);
@@ -27,7 +30,6 @@ export function NewAudio() {
   };
 
   const saveRecord = async () => {
-    //Para descargar invokeSaveAsDialog(blob, 'File');
     try {
       const file = AudioRecord.getAudio(fileName);
 
@@ -36,10 +38,10 @@ export function NewAudio() {
       formData.append('fileName', fileName);
       formData.append('creationDate', dateFormatter(DateTime.local()));
 
-      const result = await axios.post(
-        `${process.env.REACT_APP_API_URL}/files`,
-        formData
-      );
+      await axios.post(`${process.env.REACT_APP_API_URL}/files`, formData);
+
+      notifyUpdate();
+      backHome();
     } catch (error) {
       console.log(error);
     } finally {
@@ -49,6 +51,10 @@ export function NewAudio() {
 
   const pauseRecording = () => {
     AudioRecord.pauseRecording();
+  };
+
+  const backHome = () => {
+    history.push('/');
   };
 
   return (
@@ -93,15 +99,9 @@ export function NewAudio() {
           <Button color="primary" variant="contained" type="submit">
             <SaveAltIcon /> Save
           </Button>
-          <Button component={Link} to="/">
-            Volver
-          </Button>
+          <Button onClick={backHome}>Volver</Button>
         </Grid>
       </Grid>
     </ValidatorForm>
   );
 }
-
-const ERRORS = {
-  required: 'This field is required',
-};
