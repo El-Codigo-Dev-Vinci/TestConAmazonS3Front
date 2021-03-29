@@ -16,15 +16,13 @@ export default function UpdateModal({
   fileToUpdate,
 }) {
   const notifyUpdate = useNotifyUpdate(route);
-  // const { update } = useApi(route);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState(fileToUpdate.fileName);
 
   const closeModal = () => {
     setOpenModal(false);
   };
 
   const updateFile = async () => {
-    //await update(fileToUpdate?.key, { fileName: newName });
     await axios.patch(
       `${process.env.REACT_APP_API_URL}/files/${fileToUpdate?.key}`,
       { fileName: newName }
