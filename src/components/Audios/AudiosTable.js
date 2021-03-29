@@ -18,8 +18,11 @@ import { useMemo, useState } from 'react';
 import UpdateModal from '../ui/UpdateModal';
 import ReactAudioPlayer from 'react-audio-player';
 import { anyPass, includes, filter } from 'ramda';
-import removeDiacritics from 'diacritics';
+import * as AudioRecord from '../Utils/AudioRecorder';
 import { PropTypes } from 'prop-types';
+import { validateSearch } from '../Utils/validateSearch';
+import axios from 'axios';
+import { invokeSaveAsDialog } from 'recordrtc';
 
 export default function AudiosTable(props) {
   const { textToSearch } = props;
@@ -28,8 +31,15 @@ export default function AudiosTable(props) {
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [fileSelected, setFileSelected] = useState('');
 
-  const downloadAudio = async (link) => {
-    window.location.href = link;
+  const downloadAudio = async (path, name) => {
+    const file = await axios.post(
+      `${process.env.REACT_APP_API_URL}/files/download`,
+      { path: path },
+      { responseType: 'blob' }
+    );
+
+    const blob = new Blob([file.data], { type: 'audio/webm' });
+    invokeSaveAsDialog(blob, `${name}.webm`);
   };
 
   const validateByName = (it) => {
@@ -37,17 +47,6 @@ export default function AudiosTable(props) {
   };
 
   const validate = anyPass([validateByName]);
-
-  const validateSearch = (textToSearch, text) => {
-    return includes(
-      toLowerWithoutDiacritics(textToSearch),
-      toLowerWithoutDiacritics(text)
-    );
-  };
-
-  const toLowerWithoutDiacritics = (string) => {
-    return removeDiacritics.remove(string.toLowerCase());
-  };
 
   const fileRecoilFilter = useMemo(() => filter(validate, filesRecoil), [
     filesRecoil,
@@ -89,7 +88,9 @@ export default function AudiosTable(props) {
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => downloadAudio(file.linkFile)}>
+                  <IconButton
+                    onClick={() => downloadAudio(file.path, file.fileName)}
+                  >
                     <GetAppIcon />
                   </IconButton>
                   <IconButton
